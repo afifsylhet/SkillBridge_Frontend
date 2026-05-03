@@ -20,4 +20,3 @@ export default function NotFound() {
     );
 }
 
-// This file is used by Next.js to render a custom 404 page when a user navigates to a route that doesn't exist. It provides a user-friendly message and a link to return to the home page. The styling is done using Tailwind CSS classes for a clean and responsive design.
