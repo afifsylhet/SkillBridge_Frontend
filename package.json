@@ -1,43 +1,31 @@
 {
-  "name": "skillbridge-backend",
+  "name": "skillbridge-frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "SkillBridge backend — Express 5 + Prisma 6 + PostgreSQL.",
-  "engines": {
-    "node": ">=22"
-  },
-  "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "tsc -p .",
-    "start": "node dist/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy",
-    "prisma:studio": "prisma studio",
-    "seed": "tsx prisma/seed.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3",
-    "bcrypt": "latest",
-    "cookie-parser": "latest",
-    "cors": "latest",
-    "express": "latest",
-    "jsonwebtoken": "latest",
-    "zod": "latest"
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tanstack/react-query": "^5.100.6",
+    "clsx": "^2.1.1",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
-    "@types/bcrypt": "latest",
-    "@types/cookie-parser": "latest",
-    "@types/cors": "latest",
-    "@types/express": "latest",
-    "@types/jsonwebtoken": "latest",
-    "@types/node": "latest",
-    "prisma": "^6.19.3",
-    "tsx": "latest",
-    "typescript": "latest"
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
