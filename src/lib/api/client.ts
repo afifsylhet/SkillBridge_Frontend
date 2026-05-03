@@ -1,4 +1,18 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+// On the server (RSC, route handlers) we need an absolute URL — `fetch` cannot
+// resolve relative paths in Node. On the browser we prefer a same-origin path
+// so requests flow through the Next.js /api proxy and cookies land on the
+// frontend's own domain.
+function resolveApiBase(): string {
+  if (typeof window === 'undefined') {
+    const raw =
+      process.env.API_URL_INTERNAL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      'http://localhost:4000/api';
+    const trimmed = raw.replace(/\/+$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  return process.env.NEXT_PUBLIC_API_URL || '/api';
+}
 
 export type ApiSuccess<T> = { success: true; data: T };
 export type ApiFailure = {
@@ -24,7 +38,7 @@ export async function apiCall<T>(
     endpoint: string,
     options: RequestInit = {},
 ): Promise<ApiResponse<T>> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${resolveApiBase()}${endpoint}`;
 
     let response: Response;
     try {

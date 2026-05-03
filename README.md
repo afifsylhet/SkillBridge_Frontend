@@ -77,12 +77,18 @@ The dev server starts on port `3000` and proxies API calls to the backend define
 
 Configured in `.env.local`. Required:
 
-| Variable               | Required | Description                                                                 | Example                       |
-| ---------------------- | :------: | --------------------------------------------------------------------------- | ----------------------------- |
-| `NEXT_PUBLIC_API_URL`  |    ✓     | Backend base URL exposed to the browser (must include `/api` if applicable) | `http://localhost:4000/api`   |
-| `API_URL_INTERNAL`     |    ✓     | Backend base URL used by server components and server actions               | `http://localhost:4000`       |
+| Variable               | Required | Description                                                                 | Dev example                   | Production example                            |
+| ---------------------- | :------: | --------------------------------------------------------------------------- | ----------------------------- | --------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`  |    ✓     | Base URL the **browser** uses for API calls. Use a **relative** path in production so requests flow through the Next.js proxy and cookies land on this origin. | `http://localhost:4000/api`   | `/api`                                        |
+| `API_URL_INTERNAL`     |    ✓     | Absolute backend URL used by server components, server actions, and the `/api/[...path]` proxy route. Must point at the real backend. | `http://localhost:4000`       | `https://skillbridge-backend-three.vercel.app` |
 
 > `NEXT_PUBLIC_*` values are inlined into the client bundle. Never put secrets behind that prefix.
+
+### Why the proxy?
+
+In production the frontend and backend live on different `*.vercel.app` subdomains. Because `vercel.app` is on the [Public Suffix List](https://publicsuffix.org/), a backend cookie can never be scoped to the frontend's domain. To fix this, [src/app/api/[...path]/route.ts](src/app/api/[...path]/route.ts) is a catch-all proxy that forwards every `/api/*` request to the real backend (via `API_URL_INTERNAL`) and pipes the response — `Set-Cookie` headers and all — back to the browser. The browser only ever sees the frontend origin, so cookies are stored on the frontend domain and the RSC `cookies()` API can read them.
+
+The trade-off: every API call is one extra network hop on Vercel. For local development you can set `NEXT_PUBLIC_API_URL=http://localhost:4000/api` to bypass the proxy entirely (cookies "just work" because both ports share the `localhost` host).
 
 ---
 
@@ -261,6 +267,7 @@ Use these accounts after running `npm run seed` in the [backend](../skillbridge-
 | Symptom                                                | Likely cause / fix                                                                                |
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | `401 Unauthorized` after login                         | Cookie not being sent — verify `credentials: 'include'` and that the API URL matches CORS origin |
+| Login succeeds but redirect to dashboard bounces back to `/login` (Vercel) | Cross-subdomain cookie problem. Set `NEXT_PUBLIC_API_URL=/api` and `API_URL_INTERNAL=<backend>` so requests flow through the proxy |
 | Tutor list is empty in production but works locally    | Backend not seeded, or `NEXT_PUBLIC_API_URL` points to a different environment                    |
 | RSC fetch hangs                                        | `API_URL_INTERNAL` unreachable from the server runtime — check VPC / firewall                     |
 | Tailwind classes not applied                           | Verify the file is included by the v4 content scan in `globals.css`                               |
