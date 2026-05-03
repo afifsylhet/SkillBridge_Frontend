@@ -16,5 +16,3 @@ const eslintConfig = defineConfig([
 ]);
 
 export default eslintConfig;
-
-// For more information, see https://eslint.org/docs/latest/use/configure/configuration-files#configuration-file-formats
