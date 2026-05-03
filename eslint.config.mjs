@@ -17,4 +17,4 @@ const eslintConfig = defineConfig([
 
 export default eslintConfig;
 
-// This file is used to configure ESLint for the project. It extends the core web vitals and TypeScript configurations from eslint-config-next, and overrides the default ignores to ensure that certain directories and files are not linted.
+// For more information, see https://eslint.org/docs/latest/use/configure/configuration-files#configuration-file-formats
