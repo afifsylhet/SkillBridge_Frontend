@@ -26,7 +26,9 @@ export default function AdminPage() {
     );
   }
 
-  const totalBookings = data.bookings.confirmed + data.bookings.completed + data.bookings.cancelled;
+  const pending = data.bookings.pending ?? 0;
+  const totalBookings =
+    pending + data.bookings.confirmed + data.bookings.completed + data.bookings.cancelled;
 
   return (
     <div>
@@ -42,6 +44,7 @@ export default function AdminPage() {
       <section className="mb-8 rounded-xl bg-surface p-6 shadow-card">
         <h2 className="mb-4 text-lg font-semibold">Bookings by status</h2>
         <BookingsBar
+          pending={pending}
           confirmed={data.bookings.confirmed}
           completed={data.bookings.completed}
           cancelled={data.bookings.cancelled}
@@ -104,15 +107,17 @@ function Tile({
 }
 
 function BookingsBar({
+  pending,
   confirmed,
   completed,
   cancelled,
 }: {
+  pending: number;
   confirmed: number;
   completed: number;
   cancelled: number;
 }) {
-  const total = confirmed + completed + cancelled;
+  const total = pending + confirmed + completed + cancelled;
   if (total === 0) {
     return <p className="text-sm text-ink-muted">No bookings yet.</p>;
   }
@@ -120,11 +125,16 @@ function BookingsBar({
   return (
     <div>
       <div className="mb-3 flex h-3 w-full overflow-hidden rounded-full bg-surface-muted">
+        <div className="h-full bg-amber-400" style={{ width: `${pct(pending)}%` }} />
         <div className="h-full bg-brand-600" style={{ width: `${pct(confirmed)}%` }} />
         <div className="h-full bg-success" style={{ width: `${pct(completed)}%` }} />
         <div className="h-full bg-danger" style={{ width: `${pct(cancelled)}%` }} />
       </div>
-      <ul className="grid grid-cols-3 gap-2 text-sm">
+      <ul className="grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
+        <li>
+          <span className="mr-2 inline-block h-2 w-2 rounded-full bg-amber-400" />
+          Pending: {pending}
+        </li>
         <li>
           <span className="mr-2 inline-block h-2 w-2 rounded-full bg-brand-600" />
           Confirmed: {confirmed}

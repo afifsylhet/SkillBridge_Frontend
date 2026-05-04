@@ -1,4 +1,4 @@
-export type BookingStatus = 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+export type BookingStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
 
 export interface BookingReviewSummary {
   id: string;
@@ -15,6 +15,7 @@ export interface BookingWithRelations {
   durationMin: number;
   status: BookingStatus;
   notes: string | null;
+  confirmedAt?: string | null;
   cancelledAt: string | null;
   completedAt: string | null;
   createdAt: string;

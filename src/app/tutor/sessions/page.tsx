@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useMemo } from 'react';
 import { useToast } from '@/lib/hooks/useToast';
 import {
   useCompleteSession,
@@ -9,16 +9,31 @@ import {
   useTutorSessions,
 } from '@/lib/hooks/useTutorSessions';
 import { formatBookingTime } from '@/lib/utils/time';
-import { ROUTES } from '@/lib/constants/routes';
 import EmptyState from '@/components/ui/EmptyState';
 import PageLoader from '@/components/ui/PageLoader';
 
-export default function TutorDashboardPage() {
+export default function TutorSessionsPage() {
   const { data, isLoading, error, refetch } = useTutorSessions();
-  const completeMutation = useCompleteSession();
   const confirmMutation = useConfirmSession();
   const declineMutation = useDeclineSession();
+  const completeMutation = useCompleteSession();
   const { showToast } = useToast();
+
+  const sessions = useMemo(() => data ?? [], [data]);
+  const now = Date.now();
+
+  const pending = sessions
+    .filter((s) => s.status === 'PENDING')
+    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+
+  const upcoming = sessions
+    .filter((s) => s.status === 'CONFIRMED' && new Date(s.scheduledAt).getTime() > now)
+    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
+
+  const awaitingCompletion = sessions.filter((s) => {
+    if (s.status !== 'CONFIRMED') return false;
+    return new Date(s.scheduledAt).getTime() + s.durationMin * 60_000 <= now;
+  });
 
   if (isLoading) {
     return <PageLoader label="Loading your sessions…" />;
@@ -27,7 +42,7 @@ export default function TutorDashboardPage() {
   if (error) {
     return (
       <div>
-        <h1 className="mb-8 text-3xl font-bold">Tutor Dashboard</h1>
+        <h1 className="mb-6 text-3xl font-bold">My Sessions</h1>
         <div className="rounded-xl border border-danger/30 bg-danger/10 p-6 text-sm text-danger">
           Could not load your sessions: {error.message}
           <button type="button" onClick={() => refetch()} className="ml-3 underline">
@@ -37,38 +52,6 @@ export default function TutorDashboardPage() {
       </div>
     );
   }
-
-  const sessions = data ?? [];
-  const now = Date.now();
-
-  const pending = sessions
-    .filter((s) => s.status === 'PENDING')
-    .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime());
-  const upcoming = sessions.filter(
-    (s) => s.status === 'CONFIRMED' && new Date(s.scheduledAt).getTime() > now,
-  );
-  const completed = sessions.filter((s) => s.status === 'COMPLETED');
-  const pendingCompletion = sessions.filter((s) => {
-    if (s.status !== 'CONFIRMED') return false;
-    return new Date(s.scheduledAt).getTime() + s.durationMin * 60_000 <= now;
-  });
-  const ratings = completed
-    .map((s) => s.review?.rating)
-    .filter((r): r is number => typeof r === 'number');
-  const avgRating =
-    ratings.length === 0
-      ? null
-      : ratings.reduce((a, b) => a + b, 0) / ratings.length;
-
-  const handleComplete = async (id: string) => {
-    try {
-      await completeMutation.mutateAsync(id);
-      showToast('Session marked complete', 'success');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to complete';
-      showToast(message, 'error');
-    }
-  };
 
   const handleConfirm = async (id: string) => {
     try {
@@ -91,34 +74,26 @@ export default function TutorDashboardPage() {
     }
   };
 
+  const handleComplete = async (id: string) => {
+    try {
+      await completeMutation.mutateAsync(id);
+      showToast('Session marked complete', 'success');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to complete';
+      showToast(message, 'error');
+    }
+  };
+
   return (
     <div>
-      <h1 className="mb-8 text-3xl font-bold">Tutor Dashboard</h1>
-
-      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-4">
-        <StatCard label="Pending Requests" value={pending.length} accent="brand" />
-        <StatCard label="Upcoming Sessions" value={upcoming.length} accent="brand" />
-        <StatCard label="Completed Sessions" value={completed.length} accent="success" />
-        <StatCard
-          label="Average Rating"
-          value={avgRating ? avgRating.toFixed(1) : '—'}
-          accent="brand"
-        />
-      </div>
+      <h1 className="mb-2 text-3xl font-bold">My Sessions</h1>
+      <p className="mb-8 text-ink-muted">Manage incoming session requests and your schedule.</p>
 
       {pending.length > 0 && (
         <section className="mb-6 rounded-xl bg-surface p-6 shadow-card">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-ink">Pending requests</h2>
-            <Link
-              href={ROUTES.TUTOR_SESSIONS}
-              className="text-sm font-medium text-brand-600 hover:text-brand-700"
-            >
-              Manage all →
-            </Link>
-          </div>
+          <h2 className="mb-1 text-lg font-semibold text-ink">Pending requests</h2>
           <p className="mb-4 text-sm text-ink-muted">
-            Confirm or decline session requests from students.
+            Review and confirm or decline requests from students.
           </p>
           <ul className="divide-y divide-surface-border">
             {pending.map((s) => (
@@ -131,6 +106,9 @@ export default function TutorDashboardPage() {
                   <p className="text-ink-muted">
                     {formatBookingTime(s.scheduledAt)} · {s.durationMin} min
                   </p>
+                  {s.notes && (
+                    <p className="mt-1 italic text-ink-muted">“{s.notes}”</p>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -156,14 +134,11 @@ export default function TutorDashboardPage() {
         </section>
       )}
 
-      {pendingCompletion.length > 0 && (
+      {awaitingCompletion.length > 0 && (
         <section className="mb-6 rounded-xl bg-surface p-6 shadow-card">
           <h2 className="mb-3 text-lg font-semibold text-ink">Awaiting completion</h2>
-          <p className="mb-4 text-sm text-ink-muted">
-            These sessions ended already. Mark them complete so the student can leave a review.
-          </p>
           <ul className="divide-y divide-surface-border">
-            {pendingCompletion.map((s) => (
+            {awaitingCompletion.map((s) => (
               <li
                 key={s.id}
                 className="flex flex-col gap-3 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
@@ -180,7 +155,7 @@ export default function TutorDashboardPage() {
                   disabled={completeMutation.isPending}
                   className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
                 >
-                  {completeMutation.isPending ? 'Saving…' : 'Mark complete'}
+                  Mark complete
                 </button>
               </li>
             ))}
@@ -189,19 +164,16 @@ export default function TutorDashboardPage() {
       )}
 
       <section className="rounded-xl bg-surface p-6 shadow-card">
-        <h2 className="mb-3 text-lg font-semibold text-ink">Upcoming Sessions</h2>
+        <h2 className="mb-3 text-lg font-semibold text-ink">Upcoming sessions</h2>
         {upcoming.length === 0 ? (
           <EmptyState
             headline="No upcoming sessions"
-            description="Once students book with you, sessions will appear here."
+            description="Once you confirm requests, they will appear here."
           />
         ) : (
           <ul className="divide-y divide-surface-border">
             {upcoming.map((s) => (
-              <li
-                key={s.id}
-                className="flex items-center justify-between py-3 text-sm"
-              >
+              <li key={s.id} className="flex items-center justify-between py-3 text-sm">
                 <div>
                   <p className="font-medium text-ink">{s.student.name}</p>
                   <p className="text-ink-muted">{formatBookingTime(s.scheduledAt)}</p>
@@ -212,27 +184,6 @@ export default function TutorDashboardPage() {
           </ul>
         )}
       </section>
-    </div>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: number | string;
-  accent: 'brand' | 'success';
-}) {
-  return (
-    <div className="rounded-xl bg-surface p-6 shadow-card">
-      <p className="text-sm text-ink-muted">{label}</p>
-      <p
-        className={`text-3xl font-bold ${accent === 'success' ? 'text-success' : 'text-brand-600'}`}
-      >
-        {value}
-      </p>
     </div>
   );
 }

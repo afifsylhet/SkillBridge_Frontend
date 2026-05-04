@@ -13,6 +13,7 @@ import {
 } from '@/lib/api/categories';
 import { ICON_KEYS, type CategoryWithStats, type IconKey } from '@/types/category';
 import PageLoader from '@/components/ui/PageLoader';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function AdminCategoriesPage() {
   const { showToast } = useToast();
@@ -123,7 +124,10 @@ export default function AdminCategoriesPage() {
             Could not load categories: {error.message}
           </div>
         ) : !categories || categories.length === 0 ? (
-          <div className="p-12 text-center text-ink-muted">No categories yet.</div>
+          <EmptyState
+            headline="No categories available"
+            description="Add your first category using the form above."
+          />
         ) : (
           <table className="w-full">
             <thead className="bg-surface-muted">

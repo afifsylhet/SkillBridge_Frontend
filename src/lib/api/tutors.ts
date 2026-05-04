@@ -64,6 +64,18 @@ export async function completeTutorSession(bookingId: string): Promise<BookingWi
   });
 }
 
+export async function confirmTutorSession(bookingId: string): Promise<BookingWithRelations> {
+  return apiCallOrThrow<BookingWithRelations>(`/tutor/sessions/${bookingId}/confirm`, {
+    method: 'PATCH',
+  });
+}
+
+export async function declineTutorSession(bookingId: string): Promise<BookingWithRelations> {
+  return apiCallOrThrow<BookingWithRelations>(`/tutor/sessions/${bookingId}/decline`, {
+    method: 'PATCH',
+  });
+}
+
 export async function getFeaturedTutors(limit = 8): Promise<TutorListItem[]> {
   const data = await getTutors({ sort: 'rating', pageSize: limit, page: 1 });
   return data.items;

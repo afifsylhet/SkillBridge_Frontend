@@ -48,12 +48,12 @@ function nextNDays(n: number): Date[] {
 }
 
 function formatTimeOfDay(date: Date): string {
-  // Display the UTC time (since slots are constructed in UTC)
-  return date.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
+  // Slots are stored as UTC minute-of-day; show them to users in Dhaka time.
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
     minute: '2-digit',
-    timeZone: 'UTC',
-    hour12: true
+    timeZone: 'Asia/Dhaka',
+    hour12: true,
   });
 }
 
@@ -109,9 +109,9 @@ export default function BookingDialog({
         durationMin: duration,
         notes: notes.trim() || undefined,
       });
-      showToast('Booking confirmed!', 'success');
+      showToast('Request sent — waiting for tutor to confirm', 'success');
       onClose();
-      router.push('/dashboard/bookings');
+      router.push('/dashboard/sessions');
       router.refresh();
     } catch (err) {
       const message =
@@ -207,7 +207,7 @@ export default function BookingDialog({
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-ink">Time (UTC)</label>
+            <label className="mb-2 block text-sm font-medium text-ink">Time (Asia/Dhaka)</label>
             {slots.length === 0 ? (
               <div className="rounded-lg bg-surface-muted p-4 text-sm text-ink-muted">
                 No available slots for this day. Try another date or duration.
@@ -266,7 +266,7 @@ export default function BookingDialog({
             disabled={!selectedSlot || createBooking.isPending}
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {createBooking.isPending ? 'Booking…' : 'Confirm booking'}
+            {createBooking.isPending ? 'Sending request…' : 'Request session'}
           </button>
         </div>
       </div>

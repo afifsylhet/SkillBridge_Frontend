@@ -6,6 +6,7 @@ import { getAdminBookings } from '@/lib/api/admin';
 import type { BookingStatus } from '@/types/booking';
 import { formatBookingTime } from '@/lib/utils/time';
 import PageLoader from '@/components/ui/PageLoader';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function AdminBookingsPage() {
   const [status, setStatus] = useState<BookingStatus | ''>('');
@@ -33,6 +34,7 @@ export default function AdminBookingsPage() {
           className="w-full max-w-xs rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink"
         >
           <option value="">All</option>
+          <option value="PENDING">Pending</option>
           <option value="CONFIRMED">Confirmed</option>
           <option value="COMPLETED">Completed</option>
           <option value="CANCELLED">Cancelled</option>
@@ -45,7 +47,14 @@ export default function AdminBookingsPage() {
         ) : error ? (
           <div className="p-6 text-sm text-danger">Could not load bookings: {error.message}</div>
         ) : !data || data.items.length === 0 ? (
-          <div className="p-12 text-center text-ink-muted">No bookings found</div>
+          <EmptyState
+            headline="No bookings available"
+            description={
+              status
+                ? 'No bookings match this status. Try selecting another.'
+                : 'When students book sessions with tutors, they will appear here.'
+            }
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -130,9 +139,11 @@ function StatusPill({ status }: { status: BookingStatus }) {
   const styles =
     status === 'CONFIRMED'
       ? 'bg-brand-50 text-brand-700'
-      : status === 'COMPLETED'
-        ? 'bg-green-50 text-success'
-        : 'bg-red-50 text-danger';
+      : status === 'PENDING'
+        ? 'bg-amber-50 text-amber-700'
+        : status === 'COMPLETED'
+          ? 'bg-green-50 text-success'
+          : 'bg-red-50 text-danger';
   return (
     <span className={`rounded-full px-2 py-1 text-xs font-medium ${styles}`}>{status}</span>
   );

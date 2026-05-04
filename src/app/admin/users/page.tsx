@@ -8,6 +8,7 @@ import { useCurrentUser } from '@/lib/auth/client';
 import { getAdminUsers, updateUserBanStatus } from '@/lib/api/admin';
 import type { UserRole } from '@/types/user';
 import PageLoader from '@/components/ui/PageLoader';
+import EmptyState from '@/components/ui/EmptyState';
 
 export default function AdminUsersPage() {
   const { showToast } = useToast();
@@ -92,7 +93,14 @@ export default function AdminUsersPage() {
         ) : error ? (
           <div className="p-6 text-sm text-danger">Could not load users: {error.message}</div>
         ) : !data || data.items.length === 0 ? (
-          <div className="p-12 text-center text-ink-muted">No users found</div>
+          <EmptyState
+            headline="No users available"
+            description={
+              search || role || bannedFilter
+                ? 'Try clearing the filters to see more results.'
+                : 'No users have signed up yet.'
+            }
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">

@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button';
 import { useToast } from '@/lib/hooks/useToast';
 import { updateTutorAvailability } from '@/lib/api/tutors';
 import {
+  DISPLAY_TZ_LABEL,
   minutesToTimeLabel,
   ORDERED_WEEKDAYS,
   timeStringToMinutes,
@@ -48,12 +49,19 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
   });
 
   const addSlot = () => {
-    const start = timeStringToMinutes(newStart);
-    const end = timeStringToMinutes(newEnd);
-    if (start >= end) {
+    // Inputs are entered as Dhaka local time; helpers shift to UTC for storage.
+    // We compare the original Dhaka values so the message lines up with what
+    // the user typed (avoids confusion when the UTC shift wraps over midnight).
+    const dhakaStart = newStart.split(':').map(Number);
+    const dhakaEnd = newEnd.split(':').map(Number);
+    const dhakaStartMin = (dhakaStart[0] ?? 0) * 60 + (dhakaStart[1] ?? 0);
+    const dhakaEndMin = (dhakaEnd[0] ?? 0) * 60 + (dhakaEnd[1] ?? 0);
+    if (dhakaStartMin >= dhakaEndMin) {
       showToast('End time must be after start time', 'error');
       return;
     }
+    const start = timeStringToMinutes(newStart);
+    const end = timeStringToMinutes(newEnd);
     if (slots.some((s) => s.weekday === newWeekday && s.startMinute === start)) {
       showToast('A slot already starts at that time', 'error');
       return;
@@ -69,9 +77,11 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-        <p className="text-sm text-amber-900">
-          ⚠️ <strong>All times are in UTC.</strong> Convert your local time to UTC when setting availability. For example, if you're in UTC+6 and want to teach at 3pm local time, enter 09:00.
+      <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
+        <p className="text-sm text-brand-900">
+          🕒 <strong>All times are in Asia/Dhaka ({DISPLAY_TZ_LABEL}).</strong> Just enter the
+          hour you want to teach in your local time — we&apos;ll handle the conversion for
+          students in other zones.
         </p>
       </div>
       <div className="rounded-lg border border-surface-border bg-surface-muted p-4">

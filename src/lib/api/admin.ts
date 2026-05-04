@@ -4,7 +4,7 @@ import type { BookingStatus } from '@/types/booking';
 
 export interface AdminStats {
     totals: { users: number; students: number; tutors: number; admins: number };
-    bookings: { confirmed: number; completed: number; cancelled: number };
+    bookings: { pending?: number; confirmed: number; completed: number; cancelled: number };
     revenueProxy: number;
     topCategories: { name: string; tutorCount: number }[];
 }

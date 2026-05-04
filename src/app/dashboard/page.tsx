@@ -88,9 +88,11 @@ export default function DashboardPage() {
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                     b.status === 'CONFIRMED'
                       ? 'bg-brand-50 text-brand-700'
-                      : b.status === 'COMPLETED'
-                        ? 'bg-green-50 text-green-700'
-                        : 'bg-red-50 text-danger'
+                      : b.status === 'PENDING'
+                        ? 'bg-amber-50 text-amber-700'
+                        : b.status === 'COMPLETED'
+                          ? 'bg-green-50 text-green-700'
+                          : 'bg-red-50 text-danger'
                   }`}
                 >
                   {b.status}

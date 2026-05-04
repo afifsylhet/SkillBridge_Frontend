@@ -28,6 +28,7 @@ export default function DashboardSidebar({ role }: DashboardSidebarProps) {
     if (role === 'STUDENT') {
       return [
         { label: 'Overview', href: ROUTES.DASHBOARD },
+        { label: 'My Sessions', href: ROUTES.DASHBOARD_SESSIONS },
         { label: 'Bookings', href: ROUTES.DASHBOARD_BOOKINGS },
         { label: 'Profile', href: ROUTES.DASHBOARD_PROFILE },
       ];
@@ -35,6 +36,7 @@ export default function DashboardSidebar({ role }: DashboardSidebarProps) {
     if (role === 'TUTOR') {
       return [
         { label: 'Dashboard', href: ROUTES.TUTOR_DASHBOARD },
+        { label: 'My Sessions', href: ROUTES.TUTOR_SESSIONS },
         { label: 'Profile', href: ROUTES.TUTOR_PROFILE },
         { label: 'Availability', href: ROUTES.TUTOR_AVAILABILITY },
       ];

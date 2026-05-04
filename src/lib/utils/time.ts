@@ -31,19 +31,43 @@ export const ORDERED_WEEKDAYS: Weekday[] = [
   'SUNDAY',
 ];
 
-/**
- * Convert minutes (as stored in DB, interpreted as UTC) to "HH:MM" display.
- * Always displays in UTC, regardless of user's timezone.
- */
-export function minutesToTimeLabel(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} UTC`;
+// All availability and booking display times are presented to users in
+// Asia/Dhaka (UTC+6, no DST). Storage on the backend remains UTC minute-of-day,
+// so we shift at the UI boundary.
+export const DISPLAY_TZ_LABEL = 'BDT (UTC+6)';
+const DISPLAY_TZ_OFFSET_MIN = 6 * 60;
+const DAY_MIN = 24 * 60;
+
+function mod(n: number, m: number) {
+  return ((n % m) + m) % m;
 }
 
+/** Shift a UTC minute-of-day into Dhaka's minute-of-day (wrapping at midnight). */
+export function utcMinutesToDhakaMinutes(minutesUtc: number): number {
+  return mod(minutesUtc + DISPLAY_TZ_OFFSET_MIN, DAY_MIN);
+}
+
+/** Shift a Dhaka minute-of-day into UTC minute-of-day (wrapping at midnight). */
+export function dhakaMinutesToUtcMinutes(minutesDhaka: number): number {
+  return mod(minutesDhaka - DISPLAY_TZ_OFFSET_MIN, DAY_MIN);
+}
+
+/**
+ * Convert minutes (as stored in DB, interpreted as UTC) to "HH:MM" display
+ * in Asia/Dhaka time.
+ */
+export function minutesToTimeLabel(minutes: number): string {
+  const dhaka = utcMinutesToDhakaMinutes(minutes);
+  const h = Math.floor(dhaka / 60);
+  const m = dhaka % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
+/** Convert "HH:MM" form input (Dhaka local) to a UTC minute-of-day value. */
 export function timeStringToMinutes(value: string): number {
   const [h, m] = value.split(':').map(Number);
-  return (h ?? 0) * 60 + (m ?? 0);
+  const dhakaMinutes = (h ?? 0) * 60 + (m ?? 0);
+  return dhakaMinutesToUtcMinutes(dhakaMinutes);
 }
 
 export function jsWeekday(date: Date): Weekday {
@@ -107,12 +131,14 @@ export function isDateInAvailability(date: Date, availability: AvailabilitySlot[
 
 export function formatBookingTime(iso: string): string {
   const date = new Date(iso);
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString('en-US', {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
+    timeZone: 'Asia/Dhaka',
+    timeZoneName: 'short',
   });
 }
 

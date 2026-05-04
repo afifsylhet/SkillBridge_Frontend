@@ -29,6 +29,10 @@ const HOP_BY_HOP = new Set([
   'upgrade',
   'host',
   'content-length',
+  // Node's fetch transparently decompresses gzip/br/deflate responses, so the
+  // body we forward is already plaintext. Leaving the header in would tell the
+  // browser to decode again → ERR_CONTENT_DECODING_FAILED.
+  'content-encoding',
 ]);
 
 function filterHeaders(input: Headers): Headers {

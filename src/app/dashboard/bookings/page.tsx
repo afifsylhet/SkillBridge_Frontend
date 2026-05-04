@@ -11,7 +11,7 @@ import PageLoader from '@/components/ui/PageLoader';
 import ReviewForm from '@/components/forms/ReviewForm';
 import type { BookingWithRelations } from '@/types/booking';
 
-type Tab = 'upcoming' | 'past' | 'cancelled';
+type Tab = 'upcoming' | 'pending' | 'past' | 'cancelled';
 
 export default function BookingsPage() {
   const [tab, setTab] = useState<Tab>('upcoming');
@@ -26,12 +26,14 @@ export default function BookingsPage() {
 
   const tabs = [
     { id: 'upcoming' as const, label: 'Upcoming' },
+    { id: 'pending' as const, label: 'Pending' },
     { id: 'past' as const, label: 'Past' },
     { id: 'cancelled' as const, label: 'Cancelled' },
   ];
 
   const filtered = bookings.filter((b) => {
     if (tab === 'upcoming') return b.status === 'CONFIRMED' && new Date(b.scheduledAt).getTime() > now;
+    if (tab === 'pending') return b.status === 'PENDING';
     if (tab === 'past') return b.status === 'COMPLETED' || (b.status === 'CONFIRMED' && new Date(b.scheduledAt).getTime() <= now);
     return b.status === 'CANCELLED';
   });
@@ -84,12 +86,18 @@ export default function BookingsPage() {
           headline={
             tab === 'upcoming'
               ? "You haven't booked any sessions yet"
-              : tab === 'past'
-                ? 'No past sessions yet'
-                : 'No cancelled bookings'
+              : tab === 'pending'
+                ? 'No pending requests'
+                : tab === 'past'
+                  ? 'No past sessions yet'
+                  : 'No cancelled bookings'
           }
           description={
-            tab === 'upcoming' ? 'Browse tutors to schedule your first session.' : undefined
+            tab === 'upcoming'
+              ? 'Browse tutors to schedule your first session.'
+              : tab === 'pending'
+                ? 'Requests waiting for tutor confirmation will show here.'
+                : undefined
           }
           action={
             tab === 'upcoming'
@@ -141,7 +149,9 @@ function BookingItem({
 }: BookingItemProps) {
   const scheduledMs = new Date(booking.scheduledAt).getTime();
   const cutoffOk = scheduledMs - Date.now() >= 2 * 60 * 60 * 1000;
-  const isCancellable = tab === 'upcoming' && booking.status === 'CONFIRMED' && cutoffOk;
+  const isCancellable =
+    booking.status === 'PENDING' ||
+    (tab === 'upcoming' && booking.status === 'CONFIRMED' && cutoffOk);
   const canReview = booking.status === 'COMPLETED' && !booking.review;
 
   return (
@@ -159,9 +169,11 @@ function BookingItem({
               className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                 booking.status === 'CONFIRMED'
                   ? 'bg-brand-50 text-brand-700'
-                  : booking.status === 'COMPLETED'
-                    ? 'bg-green-50 text-green-700'
-                    : 'bg-red-50 text-danger'
+                  : booking.status === 'PENDING'
+                    ? 'bg-amber-50 text-amber-700'
+                    : booking.status === 'COMPLETED'
+                      ? 'bg-green-50 text-green-700'
+                      : 'bg-red-50 text-danger'
               }`}
             >
               {booking.status}

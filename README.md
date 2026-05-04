@@ -268,6 +268,7 @@ Use these accounts after running `npm run seed` in the [backend](../skillbridge-
 | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
 | `401 Unauthorized` after login                         | Cookie not being sent — verify `credentials: 'include'` and that the API URL matches CORS origin |
 | Login succeeds but redirect to dashboard bounces back to `/login` (Vercel) | Cross-subdomain cookie problem. Set `NEXT_PUBLIC_API_URL=/api` and `API_URL_INTERNAL=<backend>` so requests flow through the proxy |
+| Navbar shows the user but `/dashboard` still bounces to `/login` | The server-side auth check is failing. Check your **frontend** Vercel function logs for `[getCurrentUser]` warnings — they will tell you whether the cookie is missing on the request, the proxy returned non-200, or the fetch threw. Most often this is a missing/typoed `API_URL_INTERNAL` |
 | Tutor list is empty in production but works locally    | Backend not seeded, or `NEXT_PUBLIC_API_URL` points to a different environment                    |
 | RSC fetch hangs                                        | `API_URL_INTERNAL` unreachable from the server runtime — check VPC / firewall                     |
 | Tailwind classes not applied                           | Verify the file is included by the v4 content scan in `globals.css`                               |

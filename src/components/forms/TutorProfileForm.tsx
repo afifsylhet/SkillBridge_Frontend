@@ -22,6 +22,8 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
     staleTime: 5 * 60 * 1000,
   });
 
+  const [isEditing, setIsEditing] = useState(false);
+
   const [bio, setBio] = useState(profile.bio);
   const [headline, setHeadline] = useState(profile.headline ?? '');
   const [hourlyRate, setHourlyRate] = useState(String(profile.hourlyRate));
@@ -52,7 +54,8 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
         isPublished,
       }),
     onSuccess: () => {
-      showToast('Profile updated', 'success');
+      showToast('Profile saved successfully', 'success');
+      setIsEditing(false);
       qc.invalidateQueries({ queryKey: ['auth', 'me'] });
       qc.invalidateQueries({ queryKey: ['tutors'] });
     },
@@ -64,6 +67,20 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
+
+  const cancelEdit = () => {
+    setBio(profile.bio);
+    setHeadline(profile.headline ?? '');
+    setHourlyRate(String(profile.hourlyRate));
+    setExperience(String(profile.experience));
+    setIsPublished(profile.isPublished);
+    setCategoryIds(profile.categories.map((c) => c.id));
+    setIsEditing(false);
+  };
+
+  if (!isEditing) {
+    return <ReadOnlyView profile={profile} onEdit={() => setIsEditing(true)} />;
+  }
 
   return (
     <form
@@ -186,7 +203,114 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
         <Button type="submit" variant="primary" isLoading={mutation.isPending}>
           Save changes
         </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={cancelEdit}
+          disabled={mutation.isPending}
+        >
+          Cancel
+        </Button>
       </div>
     </form>
+  );
+}
+
+function ReadOnlyView({
+  profile,
+  onEdit,
+}: {
+  profile: CurrentUserTutorProfile;
+  onEdit: () => void;
+}) {
+  return (
+    <div className="space-y-6">
+      {!profile.isPublished && (
+        <div className="rounded-lg border border-warning/40 bg-amber-50 p-4 text-sm text-amber-900">
+          <p className="font-semibold">Your profile is hidden</p>
+          <p>Click Edit and toggle Publish to start receiving bookings.</p>
+        </div>
+      )}
+
+      <Field label="Headline">
+        {profile.headline ? (
+          <p className="text-ink">{profile.headline}</p>
+        ) : (
+          <p className="text-ink-muted italic">Not set</p>
+        )}
+      </Field>
+
+      <Field label="Bio">
+        {profile.bio ? (
+          <p className="whitespace-pre-wrap text-ink">{profile.bio}</p>
+        ) : (
+          <p className="text-ink-muted italic">Not set</p>
+        )}
+      </Field>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Field label="Hourly rate">
+          <p className="text-ink">${profile.hourlyRate}/hr</p>
+        </Field>
+        <Field label="Years of experience">
+          <p className="text-ink">{profile.experience} years</p>
+        </Field>
+      </div>
+
+      <Field label="Subjects you teach">
+        {profile.categories.length === 0 ? (
+          <p className="text-ink-muted italic">No categories selected</p>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {profile.categories.map((c) => (
+              <span
+                key={c.id}
+                className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700"
+              >
+                {c.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </Field>
+
+      <Field label="Status">
+        <span
+          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+            profile.isPublished
+              ? 'bg-green-50 text-success'
+              : 'bg-surface-muted text-ink-muted'
+          }`}
+        >
+          {profile.isPublished ? 'Published' : 'Hidden'}
+        </span>
+      </Field>
+
+      {profile.ratingCount > 0 && (
+        <Field label="Rating">
+          <p className="text-ink">
+            <span className="text-amber-500">★</span> {profile.ratingAvg.toFixed(1)} (
+            {profile.ratingCount} review{profile.ratingCount === 1 ? '' : 's'})
+          </p>
+        </Field>
+      )}
+
+      <div className="pt-2">
+        <Button type="button" variant="primary" onClick={onEdit}>
+          Edit profile
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-ink-muted">
+        {label}
+      </p>
+      {children}
+    </div>
   );
 }
