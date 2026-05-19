@@ -44,37 +44,51 @@ function filterHeaders(input: Headers): Headers {
 }
 
 async function proxy(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
-  const { path } = await ctx.params;
-  const target = `${resolveBackendBase()}/api/${path.join('/')}${req.nextUrl.search}`;
+  try {
+    const { path } = await ctx.params;
+    const target = `${resolveBackendBase()}/api/${path.join('/')}${req.nextUrl.search}`;
 
-  const requestHeaders = filterHeaders(req.headers);
-  const hasBody = !['GET', 'HEAD'].includes(req.method);
-  const body = hasBody ? await req.arrayBuffer() : undefined;
+    const requestHeaders = filterHeaders(req.headers);
+    const hasBody = !['GET', 'HEAD'].includes(req.method);
+    const body = hasBody ? await req.arrayBuffer() : undefined;
 
-  const upstream = await fetch(target, {
-    method: req.method,
-    headers: requestHeaders,
-    body,
-    redirect: 'manual',
-    cache: 'no-store',
-  });
+    const upstream = await fetch(target, {
+      method: req.method,
+      headers: requestHeaders,
+      body,
+      redirect: 'manual',
+      cache: 'no-store',
+    });
 
-  // Pass response through verbatim, but strip any Domain= attribute from
-  // Set-Cookie headers. Without Domain, the browser scopes the cookie to the
-  // response's host (the frontend), which is exactly what we want — and it
-  // prevents accidental rejection if the backend set Domain to its own host.
-  const responseHeaders = filterHeaders(upstream.headers);
-  responseHeaders.delete('set-cookie');
-  for (const cookie of upstream.headers.getSetCookie()) {
-    const sanitized = cookie.replace(/;\s*Domain=[^;]*/i, '');
-    responseHeaders.append('set-cookie', sanitized);
+    // Pass response through verbatim, but strip any Domain= attribute from
+    // Set-Cookie headers. Without Domain, the browser scopes the cookie to the
+    // response's host (the frontend), which is exactly what we want — and it
+    // prevents accidental rejection if the backend set Domain to its own host.
+    const responseHeaders = filterHeaders(upstream.headers);
+    responseHeaders.delete('set-cookie');
+    for (const cookie of upstream.headers.getSetCookie()) {
+      const sanitized = cookie.replace(/;\s*Domain=[^;]*/i, '');
+      responseHeaders.append('set-cookie', sanitized);
+    }
+
+    // Clone the body to avoid consuming it
+    const responseBody = await upstream.arrayBuffer();
+
+    return new Response(responseBody, {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    console.error('[proxy] Error forwarding request:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: { code: 'PROXY_ERROR', message: error instanceof Error ? error.message : 'Proxy error' },
+      }),
+      { status: 500, headers: { 'content-type': 'application/json' } }
+    );
   }
-
-  return new Response(upstream.body, {
-    status: upstream.status,
-    statusText: upstream.statusText,
-    headers: responseHeaders,
-  });
 }
 
 export const GET = proxy;

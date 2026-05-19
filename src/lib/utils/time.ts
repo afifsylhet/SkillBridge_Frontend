@@ -98,11 +98,14 @@ export function generateSlotsForDate(
   durationMin: 30 | 60 | 90 | 120,
   availability: AvailabilitySlot[],
   existingBookings: ExistingBooking[],
-  stepMin = 30,
+  stepMin?: number,
 ): Date[] {
   const wd = jsWeekday(date);
   const windows = availability.filter((a) => a.weekday === wd);
   const now = Date.now();
+
+  // Use duration as step interval if not explicitly provided
+  const step = stepMin ?? durationMin;
 
   const bookings = existingBookings.map((b) => {
     const start = new Date(b.scheduledAt).getTime();
@@ -111,7 +114,7 @@ export function generateSlotsForDate(
 
   const slots: Date[] = [];
   for (const w of windows) {
-    for (let m = w.startMinute; m + durationMin <= w.endMinute; m += stepMin) {
+    for (let m = w.startMinute; m + durationMin <= w.endMinute; m += step) {
       const start = setMinutesOfDay(date, m);
       const startTs = start.getTime();
       const endTs = startTs + durationMin * 60_000;

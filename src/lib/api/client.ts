@@ -1,17 +1,19 @@
 // On the server (RSC, route handlers) we need an absolute URL — `fetch` cannot
-// resolve relative paths in Node. On the browser we prefer a same-origin path
-// so requests flow through the Next.js /api proxy and cookies land on the
-// frontend's own domain.
+// resolve relative paths in Node. On the browser we always use the /api proxy
+// so requests flow through Next.js and cookies land on the frontend's own domain.
+// This works in development (localhost:3000 -> /api -> localhost:4000) and
+// production (vercel.app -> /api -> backend).
 function resolveApiBase(): string {
   if (typeof window === 'undefined') {
     const raw =
       process.env.API_URL_INTERNAL ||
       process.env.NEXT_PUBLIC_API_URL ||
-      'http://localhost:4000/api';
+      'http://localhost:4000';
     const trimmed = raw.replace(/\/+$/, '');
     return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
   }
-  return process.env.NEXT_PUBLIC_API_URL || '/api';
+  // Browser: always use relative /api path to route through Next.js proxy
+  return '/api';
 }
 
 export type ApiSuccess<T> = { success: true; data: T };

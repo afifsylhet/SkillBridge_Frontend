@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ToastProvider } from '@/providers/ToastProvider';
+import { StripeProvider } from '@/providers/StripeProvider';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export const metadata: Metadata = {
@@ -20,9 +21,11 @@ export default function RootLayout({
       <body className="bg-surface text-ink font-sans">
         <ErrorBoundary>
           <ToastProvider>
-            <QueryProvider>
-              {children}
-            </QueryProvider>
+            <StripeProvider>
+              <QueryProvider>
+                {children}
+              </QueryProvider>
+            </StripeProvider>
           </ToastProvider>
         </ErrorBoundary>
       </body>

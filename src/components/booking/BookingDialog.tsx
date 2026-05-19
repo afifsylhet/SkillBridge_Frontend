@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useStripe } from '@stripe/react-stripe-js';
 import { useCreateBooking } from '@/lib/hooks';
 import { useToast } from '@/lib/hooks/useToast';
+import { initiateCheckout } from '@/lib/api/payments';
 import {
   formatRelativeDate,
   generateSlotsForDate,
@@ -71,6 +73,7 @@ export default function BookingDialog({
   bookedRanges,
 }: BookingDialogProps) {
   const router = useRouter();
+  const stripe = useStripe();
   const { showToast } = useToast();
   const createBooking = useCreateBooking();
 
@@ -78,6 +81,7 @@ export default function BookingDialog({
   const [selectedDate, setSelectedDate] = useState<Date>(() => nextAvailableDate(availability));
   const [selectedSlot, setSelectedSlot] = useState<Date | null>(null);
   const [notes, setNotes] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -102,21 +106,42 @@ export default function BookingDialog({
       showToast('Pick a time slot first', 'error');
       return;
     }
+
+    if (!stripe) {
+      showToast('Payment system not ready. Please refresh the page.', 'error');
+      return;
+    }
+
+    setIsProcessing(true);
+
     try {
-      await createBooking.mutateAsync({
+      // Step 1: Create the booking
+      const booking = await createBooking.mutateAsync({
         tutorProfileId,
         scheduledAt: selectedSlot.toISOString(),
         durationMin: duration,
         notes: notes.trim() || undefined,
       });
-      showToast('Request sent — waiting for tutor to confirm', 'success');
+
+      showToast('Booking created. Redirecting to payment...', 'success');
+
+      // Step 2: Initiate payment checkout
+      const paymentResponse = await initiateCheckout(booking.id);
+
+      // Step 3: Redirect to Stripe checkout
+      if (paymentResponse.checkoutUrl) {
+        window.location.href = paymentResponse.checkoutUrl;
+      } else {
+        showToast('Failed to initiate payment. Please try again.', 'error');
+        setIsProcessing(false);
+      }
+
       onClose();
-      router.push('/dashboard/sessions');
-      router.refresh();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : 'Failed to book. Please try again.';
       showToast(message, 'error');
+      setIsProcessing(false);
     }
   };
 
@@ -158,11 +183,10 @@ export default function BookingDialog({
                     setDuration(d);
                     setSelectedSlot(null);
                   }}
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${
-                    duration === d
+                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${duration === d
                       ? 'border-brand-600 bg-brand-50 text-brand-700'
                       : 'border-surface-border bg-surface text-ink hover:bg-surface-muted'
-                  }`}
+                    }`}
                 >
                   {d} min
                 </button>
@@ -188,13 +212,12 @@ export default function BookingDialog({
                       setSelectedDate(d);
                       setSelectedSlot(null);
                     }}
-                    className={`flex min-w-[5.5rem] shrink-0 flex-col items-center rounded-lg border px-3 py-2 text-center text-sm transition ${
-                      isSelected
+                    className={`flex min-w-[5.5rem] shrink-0 flex-col items-center rounded-lg border px-3 py-2 text-center text-sm transition ${isSelected
                         ? 'border-brand-600 bg-brand-50 text-brand-700'
                         : hasAvailability
                           ? 'border-surface-border bg-surface text-ink hover:bg-surface-muted'
                           : 'cursor-not-allowed border-surface-border bg-surface-muted text-ink-muted/60'
-                    }`}
+                      }`}
                   >
                     <span className="text-xs uppercase tracking-wider">
                       {formatRelativeDate(d)}
@@ -222,11 +245,10 @@ export default function BookingDialog({
                       key={slot.toISOString()}
                       type="button"
                       onClick={() => setSelectedSlot(slot)}
-                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${
-                        isSelected
+                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${isSelected
                           ? 'border-brand-600 bg-brand-600 text-white'
                           : 'border-surface-border bg-surface text-ink hover:bg-surface-muted'
-                      }`}
+                        }`}
                     >
                       {formatTimeOfDay(slot)}
                     </button>
@@ -263,10 +285,10 @@ export default function BookingDialog({
           <button
             type="button"
             onClick={handleConfirm}
-            disabled={!selectedSlot || createBooking.isPending}
+            disabled={!selectedSlot || isProcessing}
             className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {createBooking.isPending ? 'Sending request…' : 'Request session'}
+            {isProcessing ? 'Processing payment…' : 'Book & pay'}
           </button>
         </div>
       </div>
