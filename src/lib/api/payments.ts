@@ -37,13 +37,13 @@ export async function initiateCheckout(bookingId: string): Promise<{ sessionId: 
 /**
  * Get payment status
  */
-export async function getPaymentStatus(paymentId: string) {
+export async function getPaymentStatus(paymentId: string): Promise<PaymentStatusResponse['data']> {
     return apiCallOrThrow(`/payments/${paymentId}/status`);
 }
 
 /**
  * Get payment by session ID (for success page)
  */
-export async function getPaymentBySession(sessionId: string) {
+export async function getPaymentBySession(sessionId: string): Promise<PaymentStatusResponse['data']> {
     return apiCallOrThrow(`/payments/session/${sessionId}`);
 }
