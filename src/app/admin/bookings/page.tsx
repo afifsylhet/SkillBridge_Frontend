@@ -21,17 +21,22 @@ export default function AdminBookingsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-3xl font-bold">Bookings</h1>
+      <h1 className="mb-2 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+        Bookings
+      </h1>
+      <p className="mb-6 text-sm text-ink-muted">Platform-wide session requests and history.</p>
 
-      <div className="mb-6 rounded-xl bg-surface p-5 shadow-card">
-        <label className="mb-1 block text-xs font-medium text-ink-muted">Status</label>
+      <div className="mb-6 rounded-2xl border border-surface-border bg-surface p-4 shadow-card md:p-5">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-muted">
+          Status
+        </label>
         <select
           value={status}
           onChange={(e) => {
             setStatus(e.target.value as BookingStatus | '');
             setPage(1);
           }}
-          className="w-full max-w-xs rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink"
+          className="w-full max-w-xs rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink"
         >
           <option value="">All</option>
           <option value="PENDING">Pending</option>
@@ -41,7 +46,7 @@ export default function AdminBookingsPage() {
         </select>
       </div>
 
-      <div className="overflow-hidden rounded-xl bg-surface shadow-card">
+      <div className="overflow-hidden rounded-2xl border border-surface-border bg-surface shadow-card">
         {isLoading ? (
           <PageLoader label="Loading bookings…" />
         ) : error ? (

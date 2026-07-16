@@ -18,9 +18,7 @@ export default async function TutorLayout({
     <div className="flex h-screen">
       <DashboardSidebar role="TUTOR" />
       <main className="flex-1 overflow-y-auto bg-surface-muted">
-        <div className="container py-8">
-          {children}
-        </div>
+        <div className="container py-7 md:py-9">{children}</div>
       </main>
     </div>
   );

@@ -13,6 +13,8 @@ import {
   jsWeekday,
   WEEKDAY_LABELS,
 } from '@/lib/utils/time';
+import Button from '@/components/ui/Button';
+import Textarea from '@/components/ui/Textarea';
 import type { AvailabilitySlot } from '@/types/tutor';
 
 const DURATION_OPTIONS = [30, 60, 90, 120] as const;
@@ -153,19 +155,21 @@ export default function BookingDialog({
       onClick={onClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-surface shadow-card-hover"
+        className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-surface-border bg-surface shadow-card-hover"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between border-b border-surface-border p-6">
           <div>
-            <h2 className="text-xl font-semibold text-ink">Book a session</h2>
-            <p className="text-sm text-ink-muted">with {tutorName}</p>
+            <h2 className="font-display text-xl font-semibold tracking-tight text-ink">
+              Book a session
+            </h2>
+            <p className="mt-0.5 text-sm text-ink-muted">with {tutorName}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close booking dialog"
-            className="rounded-lg p-2 text-ink-muted hover:bg-surface-muted"
+            className="rounded-xl p-2 text-ink-muted transition hover:bg-surface-muted"
           >
             ✕
           </button>
@@ -183,10 +187,11 @@ export default function BookingDialog({
                     setDuration(d);
                     setSelectedSlot(null);
                   }}
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${duration === d
+                  className={`rounded-xl border px-4 py-2 text-sm font-medium transition ${
+                    duration === d
                       ? 'border-brand-600 bg-brand-50 text-brand-700'
                       : 'border-surface-border bg-surface text-ink hover:bg-surface-muted'
-                    }`}
+                  }`}
                 >
                   {d} min
                 </button>
@@ -212,12 +217,13 @@ export default function BookingDialog({
                       setSelectedDate(d);
                       setSelectedSlot(null);
                     }}
-                    className={`flex min-w-[5.5rem] shrink-0 flex-col items-center rounded-lg border px-3 py-2 text-center text-sm transition ${isSelected
+                    className={`flex min-w-[5.5rem] shrink-0 flex-col items-center rounded-xl border px-3 py-2.5 text-center text-sm transition ${
+                      isSelected
                         ? 'border-brand-600 bg-brand-50 text-brand-700'
                         : hasAvailability
                           ? 'border-surface-border bg-surface text-ink hover:bg-surface-muted'
                           : 'cursor-not-allowed border-surface-border bg-surface-muted text-ink-muted/60'
-                      }`}
+                    }`}
                   >
                     <span className="text-xs uppercase tracking-wider">
                       {formatRelativeDate(d)}
@@ -232,7 +238,7 @@ export default function BookingDialog({
           <div>
             <label className="mb-2 block text-sm font-medium text-ink">Time (Asia/Dhaka)</label>
             {slots.length === 0 ? (
-              <div className="rounded-lg bg-surface-muted p-4 text-sm text-ink-muted">
+              <div className="rounded-xl border border-surface-border bg-surface-muted px-4 py-4 text-sm text-ink-muted">
                 No available slots for this day. Try another date or duration.
               </div>
             ) : (
@@ -245,10 +251,11 @@ export default function BookingDialog({
                       key={slot.toISOString()}
                       type="button"
                       onClick={() => setSelectedSlot(slot)}
-                      className={`rounded-lg border px-3 py-2 text-sm font-medium transition ${isSelected
+                      className={`rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                        isSelected
                           ? 'border-brand-600 bg-brand-600 text-white'
                           : 'border-surface-border bg-surface text-ink hover:bg-surface-muted'
-                        }`}
+                      }`}
                     >
                       {formatTimeOfDay(slot)}
                     </button>
@@ -258,38 +265,29 @@ export default function BookingDialog({
             )}
           </div>
 
-          <div>
-            <label htmlFor="booking-notes" className="mb-2 block text-sm font-medium text-ink">
-              Notes <span className="text-ink-muted">(optional)</span>
-            </label>
-            <textarea
-              id="booking-notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              maxLength={2000}
-              placeholder="What would you like to focus on?"
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-            />
-          </div>
+          <Textarea
+            id="booking-notes"
+            label="Notes (optional)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+            maxLength={2000}
+            placeholder="What would you like to focus on?"
+          />
         </div>
 
         <div className="flex justify-end gap-3 border-t border-surface-border p-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-surface-border bg-surface px-4 py-2 text-sm font-medium text-ink hover:bg-surface-muted"
-          >
+          <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={handleConfirm}
             disabled={!selectedSlot || isProcessing}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50"
+            isLoading={isProcessing}
           >
             {isProcessing ? 'Processing payment…' : 'Book & pay'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

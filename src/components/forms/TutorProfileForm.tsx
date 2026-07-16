@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Spinner from '@/components/ui/Spinner';
+import Textarea from '@/components/ui/Textarea';
 import { useToast } from '@/lib/hooks/useToast';
 import { updateTutorProfile } from '@/lib/api/tutors';
 import { getCategories } from '@/lib/api/categories';
@@ -99,22 +101,21 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
       className="space-y-6"
     >
       {!isPublished && (
-        <div className="rounded-lg border border-warning/40 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-ink">
           <p className="font-semibold">Your profile is hidden</p>
-          <p>Publish to start receiving bookings from students.</p>
+          <p className="mt-0.5 text-ink-soft">Publish to start receiving bookings from students.</p>
         </div>
       )}
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-ink">Bio</label>
-        <textarea
+        <Textarea
+          label="Bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           rows={6}
           maxLength={2000}
           required
           placeholder="Tell students about your experience and teaching style..."
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
         <p className="mt-1 text-xs text-ink-muted">{bio.length}/2000 characters</p>
       </div>
@@ -153,7 +154,10 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
       <div>
         <label className="mb-3 block text-sm font-medium text-ink">Subjects you teach</label>
         {categoriesLoading ? (
-          <p className="text-sm text-ink-muted">Loading categories…</p>
+          <div className="flex items-center gap-2 py-2 text-sm text-ink-muted" role="status">
+            <Spinner size="sm" />
+            Loading categories…
+          </div>
         ) : categories.length === 0 ? (
           <p className="text-sm text-ink-muted">No categories available.</p>
         ) : (
@@ -163,7 +167,7 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
               return (
                 <label
                   key={c.id}
-                  className={`flex cursor-pointer items-center gap-2 rounded-lg border p-3 text-sm transition ${
+                  className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm transition ${
                     checked
                       ? 'border-brand-600 bg-brand-50 text-brand-700'
                       : 'border-surface-border bg-surface text-ink hover:bg-surface-muted'
@@ -184,7 +188,7 @@ export default function TutorProfileForm({ profile }: TutorProfileFormProps) {
         <p className="mt-2 text-xs text-ink-muted">Select at least one category.</p>
       </div>
 
-      <label className="flex items-start gap-3 rounded-lg border border-surface-border bg-surface p-4">
+      <label className="flex items-start gap-3 rounded-xl border border-surface-border bg-surface p-4">
         <input
           type="checkbox"
           checked={isPublished}
@@ -226,9 +230,11 @@ function ReadOnlyView({
   return (
     <div className="space-y-6">
       {!profile.isPublished && (
-        <div className="rounded-lg border border-warning/40 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-xl border border-warning/30 bg-warning/10 p-4 text-sm text-ink">
           <p className="font-semibold">Your profile is hidden</p>
-          <p>Click Edit and toggle Publish to start receiving bookings.</p>
+          <p className="mt-0.5 text-ink-soft">
+            Click Edit and toggle Publish to start receiving bookings.
+          </p>
         </div>
       )}
 

@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import BookingDialog from '@/components/booking/BookingDialog';
+import MessageTutorButton from '@/components/tutors/MessageTutorButton';
+import Button from '@/components/ui/Button';
 import { useCurrentUser } from '@/lib/auth/client';
 import type { AvailabilitySlot } from '@/types/tutor';
 
@@ -29,41 +31,42 @@ export default function TutorBookingPanel({
 
   return (
     <>
-      <div className="sticky top-24 rounded-2xl bg-surface p-6 shadow-card">
-        <div className="mb-4">
+      <div className="sticky top-24 rounded-2xl border border-surface-border bg-surface p-6 shadow-card">
+        <div className="mb-5">
           <p className="text-sm text-ink-muted">Hourly rate</p>
-          <p className="text-3xl font-bold text-brand-600">${hourlyRate}/hr</p>
+          <p className="mt-1 font-display text-3xl font-bold tracking-tight text-brand-600">
+            ${hourlyRate}
+            <span className="text-base font-medium text-ink-muted">/hr</span>
+          </p>
         </div>
 
         {isLoading ? (
-          <div className="h-11 w-full animate-pulse rounded-lg bg-surface-muted" />
+          <div className="h-11 w-full animate-pulse rounded-xl bg-surface-muted" />
         ) : !user ? (
-          <Link
-            href="/login"
-            className="block w-full rounded-lg bg-brand-600 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-brand-700"
-          >
-            Log in to book
+          <Link href="/login" className="block">
+            <Button variant="primary" className="w-full">
+              Log in to book
+            </Button>
           </Link>
         ) : !canBook ? (
-          <div className="rounded-lg bg-surface-muted p-3 text-center text-sm text-ink-muted">
+          <div className="rounded-xl bg-surface-muted px-3 py-3 text-center text-sm text-ink-muted">
             Only students can book sessions.
           </div>
         ) : noAvailability ? (
-          <div className="rounded-lg bg-surface-muted p-3 text-center text-sm text-ink-muted">
+          <div className="rounded-xl bg-surface-muted px-3 py-3 text-center text-sm text-ink-muted">
             This tutor hasn&apos;t set their availability yet.
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="block w-full rounded-lg bg-brand-600 px-4 py-2.5 text-center text-sm font-medium text-white hover:bg-brand-700"
-          >
-            Book a session
-          </button>
+          <div className="space-y-2.5">
+            <Button type="button" variant="primary" className="w-full" onClick={() => setOpen(true)}>
+              Book a session
+            </Button>
+            <MessageTutorButton tutorProfileId={tutorProfileId} />
+          </div>
         )}
 
-        <p className="mt-3 text-center text-xs text-ink-muted">
-          Confirmed instantly · No payment required
+        <p className="mt-4 text-center text-xs leading-relaxed text-ink-muted">
+          Secure Stripe checkout · Tutor confirms after payment
         </p>
       </div>
 

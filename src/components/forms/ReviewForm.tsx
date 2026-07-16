@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import Button from '@/components/ui/Button';
+import Textarea from '@/components/ui/Textarea';
 import { createReview } from '@/lib/api/reviews';
 import { useToast } from '@/lib/hooks/useToast';
 import { reviewCreateSchema } from '@/lib/validators/review';
@@ -54,7 +56,9 @@ export default function ReviewForm({ bookingId, onSuccess, onCancel }: ReviewFor
               type="button"
               onClick={() => setRating(n)}
               aria-label={`Rate ${n} star${n === 1 ? '' : 's'}`}
-              className={`text-2xl transition ${n <= rating ? 'text-amber-500' : 'text-surface-border hover:text-amber-300'}`}
+              className={`text-2xl transition ${
+                n <= rating ? 'text-warning' : 'text-surface-border hover:text-warning/50'
+              }`}
             >
               ★
             </button>
@@ -63,17 +67,14 @@ export default function ReviewForm({ bookingId, onSuccess, onCancel }: ReviewFor
       </div>
 
       <div>
-        <label htmlFor="review-comment" className="mb-2 block text-sm font-medium text-ink">
-          Your feedback
-        </label>
-        <textarea
+        <Textarea
           id="review-comment"
+          label="Your feedback"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
           maxLength={2000}
           placeholder="What worked well? What could be improved?"
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
         />
         <p className="mt-1 text-xs text-ink-muted">{comment.length}/2000 characters</p>
       </div>
@@ -82,21 +83,13 @@ export default function ReviewForm({ bookingId, onSuccess, onCancel }: ReviewFor
 
       <div className="flex justify-end gap-2">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-lg border border-surface-border bg-surface px-4 py-2 text-sm font-medium text-ink hover:bg-surface-muted"
-          >
+          <Button type="button" variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={mutation.isPending}
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
-        >
-          {mutation.isPending ? 'Posting…' : 'Post review'}
-        </button>
+        <Button type="submit" isLoading={mutation.isPending}>
+          Post review
+        </Button>
       </div>
     </form>
   );

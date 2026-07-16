@@ -24,7 +24,7 @@ export default function AvailabilityCalendar({ slots }: AvailabilityCalendarProp
         return (
           <li
             key={day}
-            className="flex flex-wrap items-center gap-2 rounded-lg border border-surface-border bg-surface px-4 py-2"
+            className="flex flex-wrap items-center gap-2 rounded-xl border border-surface-border bg-surface-muted/50 px-4 py-2.5"
           >
             <span className="w-28 text-sm font-medium text-ink">{WEEKDAY_LABELS[day]}</span>
             <div className="flex flex-wrap gap-2">

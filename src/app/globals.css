@@ -5,50 +5,112 @@
 
 @source "../**/*.{ts,tsx}";
 
-@theme {
-  /* Brand palette — exposed as `bg-brand-500`, `text-brand-600`, etc. */
-  --color-brand-50: #eef6ff;
-  --color-brand-100: #d9eaff;
-  --color-brand-200: #b9d8ff;
-  --color-brand-300: #8cbdff;
-  --color-brand-400: #5b9bff;
+/* 3 primaries: brand blue, ink slate, accent teal — plus neutrals */
+:root {
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
   --color-brand-500: #3b82f6;
-  /* primary */
   --color-brand-600: #2563eb;
   --color-brand-700: #1d4ed8;
   --color-brand-800: #1e40af;
   --color-brand-900: #1e3a8a;
 
-  /* Ink (text) — `text-ink`, `text-ink-soft`, `text-ink-muted` */
   --color-ink: #0f172a;
   --color-ink-soft: #334155;
   --color-ink-muted: #64748b;
 
-  /* Surfaces — `bg-surface`, `bg-surface-muted`, `border-surface-border` */
   --color-surface: #ffffff;
   --color-surface-muted: #f8fafc;
   --color-surface-border: #e2e8f0;
 
-  /* Semantic */
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
+  --color-accent: #0f766e;
+  --color-accent-soft: #ccfbf1;
 
-  /* Fonts (loaded via `next/font` — see §10 phase 6) */
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --font-display: system-ui, -apple-system, sans-serif;
+  --color-success: #15803d;
+  --color-warning: #b45309;
+  --color-danger: #b91c1c;
 
-  /* Radii */
-  --radius-xl: 0.875rem;
-  --radius-2xl: 1.25rem;
+  --radius-control: 0.75rem;
+  --radius-card: 1rem;
 
-  /* Shadows */
-  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.06);
-  --shadow-card-hover: 0 2px 4px rgba(15, 23, 42, 0.06), 0 12px 24px rgba(15, 23, 42, 0.08);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.05);
+  --shadow-card-hover: 0 4px 8px rgba(15, 23, 42, 0.06), 0 14px 28px rgba(15, 23, 42, 0.08);
+}
 
-  /* Animations */
+/* Keep brand actionable blues in dark mode (do not invert button fills) */
+.dark {
+  --color-brand-50: #0b1628;
+  --color-brand-100: #12233f;
+  --color-brand-200: #1a335c;
+  --color-brand-300: #234784;
+  --color-brand-400: #3b82f6;
+  --color-brand-500: #60a5fa;
+  --color-brand-600: #3b82f6;
+  --color-brand-700: #93c5fd;
+  --color-brand-800: #bfdbfe;
+  --color-brand-900: #dbeafe;
+
+  --color-ink: #f1f5f9;
+  --color-ink-soft: #cbd5e1;
+  --color-ink-muted: #94a3b8;
+
+  --color-surface: #0b1220;
+  --color-surface-muted: #111827;
+  --color-surface-border: #1f2937;
+
+  --color-accent: #2dd4bf;
+  --color-accent-soft: #134e4a;
+
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 18px rgba(0, 0, 0, 0.28);
+  --shadow-card-hover: 0 4px 10px rgba(0, 0, 0, 0.4), 0 16px 32px rgba(0, 0, 0, 0.35);
+}
+
+@theme {
+  --color-brand-50: var(--color-brand-50);
+  --color-brand-100: var(--color-brand-100);
+  --color-brand-200: var(--color-brand-200);
+  --color-brand-300: var(--color-brand-300);
+  --color-brand-400: var(--color-brand-400);
+  --color-brand-500: var(--color-brand-500);
+  --color-brand-600: var(--color-brand-600);
+  --color-brand-700: var(--color-brand-700);
+  --color-brand-800: var(--color-brand-800);
+  --color-brand-900: var(--color-brand-900);
+
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-ink-muted: var(--color-ink-muted);
+
+  --color-surface: var(--color-surface);
+  --color-surface-muted: var(--color-surface-muted);
+  --color-surface-border: var(--color-surface-border);
+
+  --color-accent: var(--color-accent);
+  --color-accent-soft: var(--color-accent-soft);
+
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-family), ui-serif, Georgia, serif;
+
+  --radius-xl: var(--radius-control);
+  --radius-2xl: var(--radius-card);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-card-hover: var(--shadow-card-hover);
+
   --animate-fade-in: fade-in 220ms ease-out;
   --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-slide-up: slide-up 400ms ease-out;
 }
 
 @keyframes fade-in {
@@ -56,7 +118,6 @@
     opacity: 0;
     transform: translateY(4px);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -67,14 +128,95 @@
   0% {
     background-position: -400px 0;
   }
-
   100% {
     background-position: 400px 0;
   }
 }
 
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @utility container {
   margin-inline: auto;
-  padding-inline: 1rem;
-  max-width: 1280px;
+  padding-inline: 1.25rem;
+  max-width: 1200px;
+
+  @media (min-width: 768px) {
+    padding-inline: 1.75rem;
+  }
+}
+
+/* Half of the intended inter-section gap — adjacent sections stack to ~5rem / 6.5rem */
+@utility section-y {
+  padding-block: 2.5rem;
+
+  @media (min-width: 768px) {
+    padding-block: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    padding-block: 3.25rem;
+  }
+}
+
+/* Compact band (stats strip, newsletter) — keeps rhythm without feeling sparse */
+@utility section-y-sm {
+  padding-block: 2rem;
+
+  @media (min-width: 768px) {
+    padding-block: 2.5rem;
+  }
+}
+
+@utility panel {
+  border: 1px solid var(--color-surface-border);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+@utility field {
+  width: 100%;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-surface-border);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  padding: 0.625rem 0.875rem;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+@utility field-focus {
+  outline: none;
+  border-color: transparent;
+  box-shadow: 0 0 0 2px var(--color-brand-500);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-feature-settings: "ss01" on, "cv11" on;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-brand-500) 28%, transparent);
 }

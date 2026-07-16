@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { SimpleLineChart, SimplePieChart } from '@/components/charts/DashboardCharts';
 import { getAdminStats } from '@/lib/api/admin';
 import PageLoader from '@/components/ui/PageLoader';
 
@@ -30,6 +31,25 @@ export default function AdminPage() {
   const totalBookings =
     pending + data.bookings.confirmed + data.bookings.completed + data.bookings.cancelled;
 
+  const bookingPieData = [
+    { name: 'Pending', value: pending },
+    { name: 'Confirmed', value: data.bookings.confirmed },
+    { name: 'Completed', value: data.bookings.completed },
+    { name: 'Cancelled', value: data.bookings.cancelled },
+  ];
+
+  const bookingsChartData =
+    data.bookingsOverTime?.map((d) => ({
+      date: d.date.slice(5),
+      count: d.count,
+    })) ?? [];
+
+  const paymentsChartData =
+    data.paymentsOverTime?.map((d) => ({
+      date: d.date.slice(5),
+      revenue: d.revenue,
+    })) ?? [];
+
   return (
     <div>
       <h1 className="mb-8 text-3xl font-bold">Admin Dashboard</h1>
@@ -41,15 +61,34 @@ export default function AdminPage() {
         <Tile label="Bookings" value={totalBookings} accent="success" />
       </div>
 
-      <section className="mb-8 rounded-xl bg-surface p-6 shadow-card">
-        <h2 className="mb-4 text-lg font-semibold">Bookings by status</h2>
-        <BookingsBar
-          pending={pending}
-          confirmed={data.bookings.confirmed}
-          completed={data.bookings.completed}
-          cancelled={data.bookings.cancelled}
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <SimpleLineChart
+          title="Bookings over time (30 days)"
+          data={bookingsChartData}
+          xKey="date"
+          yKey="count"
         />
-      </section>
+        <SimpleLineChart
+          title="Stripe revenue over time (30 days)"
+          data={paymentsChartData}
+          xKey="date"
+          yKey="revenue"
+        />
+      </div>
+
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <SimplePieChart title="Bookings by status" data={bookingPieData} />
+
+        <section className="rounded-xl bg-surface p-6 shadow-card">
+          <h2 className="mb-3 text-lg font-semibold">Bookings by status</h2>
+          <BookingsBar
+            pending={pending}
+            confirmed={data.bookings.confirmed}
+            completed={data.bookings.completed}
+            cancelled={data.bookings.cancelled}
+          />
+        </section>
+      </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <section className="rounded-xl bg-surface p-6 shadow-card">
@@ -59,10 +98,7 @@ export default function AdminPage() {
           ) : (
             <ul className="space-y-2">
               {data.topCategories.map((c) => (
-                <li
-                  key={c.name}
-                  className="flex items-center justify-between text-sm"
-                >
+                <li key={c.name} className="flex items-center justify-between text-sm">
                   <span className="text-ink">{c.name}</span>
                   <span className="text-ink-muted">{c.tutorCount} tutors</span>
                 </li>
@@ -72,10 +108,17 @@ export default function AdminPage() {
         </section>
 
         <section className="rounded-xl bg-surface p-6 shadow-card">
-          <h2 className="mb-3 text-lg font-semibold">Revenue proxy</h2>
-          <p className="text-3xl font-bold text-brand-600">
-            ${data.revenueProxy.toLocaleString()}
-          </p>
+          <h2 className="mb-3 text-lg font-semibold">Revenue</h2>
+          {data.stripeRevenue != null && (
+            <div className="mb-4">
+              <p className="text-sm text-ink-muted">Stripe revenue (collected)</p>
+              <p className="text-3xl font-bold text-brand-600">
+                ${data.stripeRevenue.toLocaleString()}
+              </p>
+            </div>
+          )}
+          <p className="text-sm text-ink-muted">Revenue proxy (completed sessions)</p>
+          <p className="text-2xl font-bold text-brand-600">${data.revenueProxy.toLocaleString()}</p>
           <p className="mt-2 text-sm text-ink-muted">
             Estimated total value of completed sessions (hours × hourly rate).
           </p>

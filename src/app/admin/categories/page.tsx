@@ -76,9 +76,12 @@ export default function AdminCategoriesPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-3xl font-bold">Categories</h1>
+      <h1 className="mb-2 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+        Categories
+      </h1>
+      <p className="mb-6 text-sm text-ink-muted">Organize tutors by subject area.</p>
 
-      <section className="mb-6 rounded-xl bg-surface p-6 shadow-card">
+      <section className="mb-6 rounded-2xl border border-surface-border bg-surface p-5 shadow-card md:p-6">
         <h2 className="mb-4 text-lg font-semibold">Add new category</h2>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <Input
@@ -116,7 +119,7 @@ export default function AdminCategoriesPage() {
         <p className="mt-2 text-xs text-ink-muted">The slug is auto-generated from the name.</p>
       </section>
 
-      <div className="overflow-hidden rounded-xl bg-surface shadow-card">
+      <div className="overflow-hidden rounded-2xl border border-surface-border bg-surface shadow-card">
         {isLoading ? (
           <PageLoader label="Loading categories…" />
         ) : error ? (

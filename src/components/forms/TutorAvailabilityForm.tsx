@@ -77,14 +77,14 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-brand-200 bg-brand-50 p-4">
+      <div className="rounded-xl border border-brand-100 bg-brand-50 p-4">
         <p className="text-sm text-brand-900">
           🕒 <strong>All times are in Asia/Dhaka ({DISPLAY_TZ_LABEL}).</strong> Just enter the
           hour you want to teach in your local time — we&apos;ll handle the conversion for
           students in other zones.
         </p>
       </div>
-      <div className="rounded-lg border border-surface-border bg-surface-muted p-4">
+      <div className="rounded-xl border border-surface-border bg-surface-muted/60 p-4">
         <h3 className="mb-3 text-sm font-semibold text-ink">Add availability window</h3>
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
           <div>
@@ -92,7 +92,7 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
             <select
               value={newWeekday}
               onChange={(e) => setNewWeekday(e.target.value as Weekday)}
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm"
             >
               {ORDERED_WEEKDAYS.map((d) => (
                 <option key={d} value={d}>
@@ -107,7 +107,7 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
               type="time"
               value={newStart}
               onChange={(e) => setNewStart(e.target.value)}
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm"
             />
           </div>
           <div>
@@ -116,7 +116,7 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
               type="time"
               value={newEnd}
               onChange={(e) => setNewEnd(e.target.value)}
-              className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm"
             />
           </div>
           <div className="flex items-end">
@@ -130,7 +130,7 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
       <div>
         <h3 className="mb-3 text-sm font-semibold text-ink">Your weekly availability</h3>
         {slots.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-surface-border bg-surface-muted p-6 text-center text-sm text-ink-muted">
+          <div className="rounded-xl border border-dashed border-surface-border bg-surface-muted/50 p-6 text-center text-sm text-ink-muted">
             No windows yet. Add your first availability above.
           </div>
         ) : (
@@ -144,7 +144,7 @@ export default function TutorAvailabilityForm({ initialSlots }: TutorAvailabilit
               return (
                 <li
                   key={day}
-                  className="rounded-lg border border-surface-border bg-surface px-4 py-3"
+                  className="rounded-xl border border-surface-border bg-surface px-4 py-3"
                 >
                   <p className="mb-2 text-sm font-medium text-ink">{WEEKDAY_LABELS[day]}</p>
                   <div className="flex flex-wrap gap-2">

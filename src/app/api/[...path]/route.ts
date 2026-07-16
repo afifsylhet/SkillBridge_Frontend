@@ -1,16 +1,12 @@
 // Catch-all proxy: forwards every /api/* request to the real backend.
 //
 // Why proxy?
-//   In production the frontend (skillbridge-frontend.vercel.app) and the backend
-//   (skillbridge-backend-three.vercel.app) live on different vercel.app subdomains.
-//   Because vercel.app is on the Public Suffix List, cookies set by the backend
-//   cannot be scoped to the frontend's domain. By proxying through Next.js, the
-//   browser only ever talks to the frontend origin — so Set-Cookie lands on the
-//   frontend domain where the RSC `cookies()` API can read it.
+//   In production the frontend and backend live on different hosts.
+//   By proxying through Next.js, the browser only ever talks to the frontend
+//   origin — so Set-Cookie lands on the frontend domain.
 import { type NextRequest } from 'next/server';
 
 function resolveBackendBase(): string {
-  // Strip a trailing /api so we can re-append /api below — both forms are tolerated.
   const raw =
     process.env.API_URL_INTERNAL ||
     process.env.BACKEND_URL ||
@@ -29,9 +25,6 @@ const HOP_BY_HOP = new Set([
   'upgrade',
   'host',
   'content-length',
-  // Node's fetch transparently decompresses gzip/br/deflate responses, so the
-  // body we forward is already plaintext. Leaving the header in would tell the
-  // browser to decode again → ERR_CONTENT_DECODING_FAILED.
   'content-encoding',
 ]);
 
@@ -43,7 +36,7 @@ function filterHeaders(input: Headers): Headers {
   return out;
 }
 
-async function proxy(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
+async function forward(req: NextRequest, ctx: { params: Promise<{ path: string[] }> }) {
   try {
     const { path } = await ctx.params;
     const target = `${resolveBackendBase()}/api/${path.join('/')}${req.nextUrl.search}`;
@@ -60,10 +53,6 @@ async function proxy(req: NextRequest, ctx: { params: Promise<{ path: string[] }
       cache: 'no-store',
     });
 
-    // Pass response through verbatim, but strip any Domain= attribute from
-    // Set-Cookie headers. Without Domain, the browser scopes the cookie to the
-    // response's host (the frontend), which is exactly what we want — and it
-    // prevents accidental rejection if the backend set Domain to its own host.
     const responseHeaders = filterHeaders(upstream.headers);
     responseHeaders.delete('set-cookie');
     for (const cookie of upstream.headers.getSetCookie()) {
@@ -71,7 +60,6 @@ async function proxy(req: NextRequest, ctx: { params: Promise<{ path: string[] }
       responseHeaders.append('set-cookie', sanitized);
     }
 
-    // Clone the body to avoid consuming it
     const responseBody = await upstream.arrayBuffer();
 
     return new Response(responseBody, {
@@ -80,20 +68,22 @@ async function proxy(req: NextRequest, ctx: { params: Promise<{ path: string[] }
       headers: responseHeaders,
     });
   } catch (error) {
-    console.error('[proxy] Error forwarding request:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: { code: 'PROXY_ERROR', message: error instanceof Error ? error.message : 'Proxy error' },
+        error: {
+          code: 'PROXY_ERROR',
+          message: error instanceof Error ? error.message : 'Proxy error',
+        },
       }),
-      { status: 500, headers: { 'content-type': 'application/json' } }
+      { status: 500, headers: { 'content-type': 'application/json' } },
     );
   }
 }
 
-export const GET = proxy;
-export const POST = proxy;
-export const PUT = proxy;
-export const PATCH = proxy;
-export const DELETE = proxy;
-export const OPTIONS = proxy;
+export const GET = forward;
+export const POST = forward;
+export const PUT = forward;
+export const PATCH = forward;
+export const DELETE = forward;
+export const OPTIONS = forward;

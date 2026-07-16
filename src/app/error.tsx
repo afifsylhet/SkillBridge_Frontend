@@ -5,31 +5,30 @@ import Link from 'next/link';
 import { ROUTES } from '@/lib/constants/routes';
 
 export default function Error({
-    error,
-    reset,
+  error,
+  reset,
 }: {
-    error: Error & { digest?: string };
-    reset: () => void;
+  error: Error & { digest?: string };
+  reset: () => void;
 }) {
-    return (
-        <div className="flex items-center justify-center min-h-screen">
-            <div className="bg-surface p-8 rounded-xl shadow-card max-w-md text-center">
-                <h1 className="text-3xl font-bold text-danger mb-4">Oops!</h1>
-                <p className="text-ink-muted mb-6">
-                    {error.message || 'Something went wrong while loading this page.'}
-                </p>
-                <div className="flex gap-3">
-                    <Button onClick={() => reset()} variant="primary" className="flex-1">
-                        Try again
-                    </Button>
-                    <Link
-                        href={ROUTES.HOME}
-                        className="flex-1 inline-flex items-center justify-center px-4 py-2 text-base font-medium rounded-lg border border-ink text-ink hover:bg-surface-muted"
-                    >
-                        Go home
-                    </Link>
-                </div>
-            </div>
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-surface-muted px-4">
+      <div className="w-full max-w-md rounded-2xl border border-surface-border bg-surface p-8 text-center shadow-card md:p-9">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-ink">Something went wrong</h1>
+        <p className="mt-2 mb-7 text-sm leading-relaxed text-ink-muted">
+          {error.message || 'Something went wrong while loading this page.'}
+        </p>
+        <div className="flex gap-3">
+          <Button onClick={() => reset()} variant="primary" className="flex-1">
+            Try again
+          </Button>
+          <Link href={ROUTES.HOME} className="flex-1">
+            <Button variant="secondary" className="w-full">
+              Go home
+            </Button>
+          </Link>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

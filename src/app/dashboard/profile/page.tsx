@@ -14,9 +14,11 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div>
-        <h1 className="mb-8 text-3xl font-bold">Profile</h1>
-        <div className="rounded-xl bg-surface p-6 shadow-card">
-          <p className="text-ink-muted">Unable to load profile. Please try again.</p>
+        <h1 className="mb-6 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+          Profile
+        </h1>
+        <div className="rounded-2xl border border-surface-border bg-surface p-6 shadow-card">
+          <p className="text-sm text-ink-muted">Unable to load profile. Please try again.</p>
         </div>
       </div>
     );
@@ -24,8 +26,11 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <h1 className="mb-8 text-3xl font-bold">My Profile</h1>
-      <div className="max-w-2xl rounded-xl bg-surface p-8 shadow-card">
+      <h1 className="mb-2 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+        My Profile
+      </h1>
+      <p className="mb-8 text-sm text-ink-muted">Update your name and avatar.</p>
+      <div className="max-w-2xl rounded-2xl border border-surface-border bg-surface p-6 shadow-card md:p-8">
         <StudentProfileForm user={user} />
       </div>
     </div>

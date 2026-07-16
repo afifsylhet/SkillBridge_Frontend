@@ -11,9 +11,9 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
   ({ className, variant = 'text', ...props }, ref) => {
     const variantStyles = {
       text: 'h-4 rounded',
-      card: 'h-48 rounded-xl',
+      card: 'h-48 rounded-2xl',
       avatar: 'h-12 w-12 rounded-full',
-      button: 'h-10 rounded-lg',
+      button: 'h-10 rounded-xl',
     };
 
     return (

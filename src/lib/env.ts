@@ -13,11 +13,7 @@ export const env = {
  * Validate that required environment variables are set.
  */
 export function validateEnv() {
-  if (process.env.NEXT_PUBLIC_API_URL) {
-    console.info('NEXT_PUBLIC_API_URL is set to:', process.env.NEXT_PUBLIC_API_URL);
-  }
-
   if (env.nodeEnv === 'production' && env.apiUrl.includes('localhost')) {
-    console.warn('Production build with localhost API. Check NEXT_PUBLIC_API_URL.');
+    // Intentionally silent in production — misconfig surfaces via failed API calls.
   }
 }

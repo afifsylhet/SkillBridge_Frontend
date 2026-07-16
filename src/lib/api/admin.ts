@@ -6,7 +6,10 @@ export interface AdminStats {
     totals: { users: number; students: number; tutors: number; admins: number };
     bookings: { pending?: number; confirmed: number; completed: number; cancelled: number };
     revenueProxy: number;
+    stripeRevenue?: number;
     topCategories: { name: string; tutorCount: number }[];
+    bookingsOverTime?: Array<{ date: string; count: number }>;
+    paymentsOverTime?: Array<{ date: string; revenue: number }>;
 }
 
 export interface AdminUserItem {

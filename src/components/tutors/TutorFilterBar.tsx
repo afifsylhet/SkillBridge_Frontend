@@ -2,16 +2,22 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
+import Button from '@/components/ui/Button';
+import TutorsNavSpinner from '@/components/tutors/TutorsNavSpinner';
+import { signalNavigationStart } from '@/lib/navigation';
 import type { CategoryWithStats } from '@/types/category';
 
 interface TutorFilterBarProps {
   categories: CategoryWithStats[];
 }
 
+const fieldClass =
+  'w-full rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-500';
+
 export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const [q, setQ] = useState(searchParams.get('q') ?? '');
   const [category, setCategory] = useState(searchParams.get('category') ?? '');
@@ -28,6 +34,7 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
     if (maxPrice) params.set('maxPrice', maxPrice);
     if (minRating) params.set('minRating', minRating);
     if (sort && sort !== 'rating') params.set('sort', sort);
+    signalNavigationStart();
     startTransition(() => {
       router.push(`/tutors${params.toString() ? `?${params.toString()}` : ''}`);
     });
@@ -40,6 +47,7 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
     setMaxPrice('');
     setMinRating('');
     setSort('rating');
+    signalNavigationStart();
     startTransition(() => {
       router.push('/tutors');
     });
@@ -51,12 +59,13 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
         e.preventDefault();
         apply();
       }}
-      className="space-y-4 rounded-xl bg-surface p-5 shadow-card"
+      className="space-y-4 rounded-2xl border border-surface-border bg-surface p-5 shadow-card"
     >
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-ink-muted">Filters</h2>
+      <TutorsNavSpinner show={isPending} />
+      <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted">Filters</h2>
 
-      <div>
-        <label htmlFor="filter-q" className="mb-1 block text-sm font-medium text-ink">
+      <div className="space-y-1.5">
+        <label htmlFor="filter-q" className="block text-sm font-medium text-ink">
           Keyword
         </label>
         <input
@@ -65,19 +74,19 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Name or headline"
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className={fieldClass}
         />
       </div>
 
-      <div>
-        <label htmlFor="filter-category" className="mb-1 block text-sm font-medium text-ink">
+      <div className="space-y-1.5">
+        <label htmlFor="filter-category" className="block text-sm font-medium text-ink">
           Category
         </label>
         <select
           id="filter-category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className={fieldClass}
         >
           <option value="">All categories</option>
           {categories.map((c) => (
@@ -88,9 +97,9 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
         </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label htmlFor="filter-min-price" className="mb-1 block text-sm font-medium text-ink">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label htmlFor="filter-min-price" className="block text-sm font-medium text-ink">
             Min $/hr
           </label>
           <input
@@ -99,11 +108,11 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
             min="0"
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
-            className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className={fieldClass}
           />
         </div>
-        <div>
-          <label htmlFor="filter-max-price" className="mb-1 block text-sm font-medium text-ink">
+        <div className="space-y-1.5">
+          <label htmlFor="filter-max-price" className="block text-sm font-medium text-ink">
             Max $/hr
           </label>
           <input
@@ -112,20 +121,20 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
             min="0"
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
-            className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+            className={fieldClass}
           />
         </div>
       </div>
 
-      <div>
-        <label htmlFor="filter-min-rating" className="mb-1 block text-sm font-medium text-ink">
+      <div className="space-y-1.5">
+        <label htmlFor="filter-min-rating" className="block text-sm font-medium text-ink">
           Minimum rating
         </label>
         <select
           id="filter-min-rating"
           value={minRating}
           onChange={(e) => setMinRating(e.target.value)}
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className={fieldClass}
         >
           <option value="">Any</option>
           <option value="3">3.0+</option>
@@ -134,15 +143,15 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
         </select>
       </div>
 
-      <div>
-        <label htmlFor="filter-sort" className="mb-1 block text-sm font-medium text-ink">
+      <div className="space-y-1.5">
+        <label htmlFor="filter-sort" className="block text-sm font-medium text-ink">
           Sort by
         </label>
         <select
           id="filter-sort"
           value={sort}
           onChange={(e) => setSort(e.target.value)}
-          className="w-full rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className={fieldClass}
         >
           <option value="rating">Top rated</option>
           <option value="priceAsc">Price: low to high</option>
@@ -151,20 +160,13 @@ export default function TutorFilterBar({ categories }: TutorFilterBarProps) {
         </select>
       </div>
 
-      <div className="flex gap-2 pt-2">
-        <button
-          type="submit"
-          className="flex-1 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-        >
+      <div className="flex gap-2 pt-1">
+        <Button type="submit" variant="primary" className="flex-1" size="sm" isLoading={isPending}>
           Apply
-        </button>
-        <button
-          type="button"
-          onClick={clear}
-          className="rounded-lg border border-surface-border bg-surface px-4 py-2 text-sm font-medium text-ink hover:bg-surface-muted"
-        >
+        </Button>
+        <Button type="button" variant="secondary" onClick={clear} size="sm" disabled={isPending}>
           Clear
-        </button>
+        </Button>
       </div>
     </form>
   );

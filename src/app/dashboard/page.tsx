@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { SimpleBarChart, SimplePieChart } from '@/components/charts/DashboardCharts';
 import { useMyBookings } from '@/lib/hooks';
+import { getStudentAnalytics } from '@/lib/api/stats';
 import { ROUTES } from '@/lib/constants/routes';
 import { formatBookingTime } from '@/lib/utils/time';
 import EmptyState from '@/components/ui/EmptyState';
@@ -9,6 +12,11 @@ import PageLoader from '@/components/ui/PageLoader';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useMyBookings();
+  const { data: analytics } = useQuery({
+    queryKey: ['analytics', 'student'],
+    queryFn: getStudentAnalytics,
+    staleTime: 60_000,
+  });
 
   if (isLoading) {
     return <PageLoader label="Loading your dashboard…" />;
@@ -47,6 +55,21 @@ export default function DashboardPage() {
         <StatCard label="Completed Sessions" value={completed.length} accent="success" />
         <StatCard label="Hours Learned" value={Math.round(totalHours * 10) / 10} accent="brand" />
       </div>
+
+      {analytics && (
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <SimpleBarChart
+            title="Sessions by month"
+            data={analytics.byMonth.map((m) => ({ month: m.month, count: m.count }))}
+            xKey="month"
+            yKey="count"
+          />
+          <SimplePieChart
+            title="Bookings by status"
+            data={Object.entries(analytics.byStatus).map(([name, value]) => ({ name, value }))}
+          />
+        </div>
+      )}
 
       {next && (
         <div className="mb-6 rounded-xl bg-surface p-6 shadow-card">

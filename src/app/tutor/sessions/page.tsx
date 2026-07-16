@@ -86,12 +86,18 @@ export default function TutorSessionsPage() {
 
   return (
     <div>
-      <h1 className="mb-2 text-3xl font-bold">My Sessions</h1>
-      <p className="mb-8 text-ink-muted">Manage incoming session requests and your schedule.</p>
+      <h1 className="mb-2 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+        My Sessions
+      </h1>
+      <p className="mb-8 text-sm text-ink-muted">
+        Manage incoming session requests and your schedule.
+      </p>
 
       {pending.length > 0 && (
-        <section className="mb-6 rounded-xl bg-surface p-6 shadow-card">
-          <h2 className="mb-1 text-lg font-semibold text-ink">Pending requests</h2>
+        <section className="mb-5 rounded-2xl border border-surface-border bg-surface p-5 shadow-card md:p-6">
+          <h2 className="mb-1 font-display text-lg font-semibold tracking-tight text-ink">
+            Pending requests
+          </h2>
           <p className="mb-4 text-sm text-ink-muted">
             Review and confirm or decline requests from students.
           </p>
@@ -115,7 +121,7 @@ export default function TutorSessionsPage() {
                     type="button"
                     onClick={() => handleConfirm(s.id)}
                     disabled={confirmMutation.isPending}
-                    className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                    className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-50"
                   >
                     Confirm
                   </button>
@@ -123,7 +129,7 @@ export default function TutorSessionsPage() {
                     type="button"
                     onClick={() => handleDecline(s.id)}
                     disabled={declineMutation.isPending}
-                    className="rounded-lg border border-danger px-4 py-2 text-sm font-medium text-danger hover:bg-red-50 disabled:opacity-50"
+                    className="rounded-xl border border-danger/40 px-4 py-2 text-sm font-medium text-danger transition hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-950/30"
                   >
                     Decline
                   </button>
@@ -135,8 +141,10 @@ export default function TutorSessionsPage() {
       )}
 
       {awaitingCompletion.length > 0 && (
-        <section className="mb-6 rounded-xl bg-surface p-6 shadow-card">
-          <h2 className="mb-3 text-lg font-semibold text-ink">Awaiting completion</h2>
+        <section className="mb-5 rounded-2xl border border-surface-border bg-surface p-5 shadow-card md:p-6">
+          <h2 className="mb-3 font-display text-lg font-semibold tracking-tight text-ink">
+            Awaiting completion
+          </h2>
           <ul className="divide-y divide-surface-border">
             {awaitingCompletion.map((s) => (
               <li
@@ -153,7 +161,7 @@ export default function TutorSessionsPage() {
                   type="button"
                   onClick={() => handleComplete(s.id)}
                   disabled={completeMutation.isPending}
-                  className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                  className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-50"
                 >
                   Mark complete
                 </button>
@@ -163,8 +171,10 @@ export default function TutorSessionsPage() {
         </section>
       )}
 
-      <section className="rounded-xl bg-surface p-6 shadow-card">
-        <h2 className="mb-3 text-lg font-semibold text-ink">Upcoming sessions</h2>
+      <section className="rounded-2xl border border-surface-border bg-surface p-5 shadow-card md:p-6">
+        <h2 className="mb-3 font-display text-lg font-semibold tracking-tight text-ink">
+          Upcoming sessions
+        </h2>
         {upcoming.length === 0 ? (
           <EmptyState
             headline="No upcoming sessions"

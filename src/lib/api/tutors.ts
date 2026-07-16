@@ -80,3 +80,7 @@ export async function getFeaturedTutors(limit = 8): Promise<TutorListItem[]> {
   const data = await getTutors({ sort: 'rating', pageSize: limit, page: 1 });
   return data.items;
 }
+
+export async function getRelatedTutors(id: string): Promise<TutorListItem[]> {
+  return apiCallOrThrow<TutorListItem[]>(`/tutors/${id}/related`, { method: 'GET' });
+}

@@ -19,8 +19,10 @@ export default function AvailabilityPage() {
   if (error) {
     return (
       <div>
-        <h1 className="mb-8 text-3xl font-bold">Weekly Availability</h1>
-        <div className="rounded-xl border border-danger/30 bg-danger/10 p-6 text-sm text-danger">
+        <h1 className="mb-6 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+          Weekly Availability
+        </h1>
+        <div className="rounded-2xl border border-danger/30 bg-danger/10 p-6 text-sm text-danger">
           Could not load availability: {error.message}
         </div>
       </div>
@@ -29,11 +31,13 @@ export default function AvailabilityPage() {
 
   return (
     <div>
-      <h1 className="mb-2 text-3xl font-bold">Weekly Availability</h1>
-      <p className="mb-8 text-ink-muted">
+      <h1 className="mb-2 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+        Weekly Availability
+      </h1>
+      <p className="mb-8 max-w-2xl text-sm text-ink-muted">
         Set your recurring weekly availability. Students can only book sessions during these times.
       </p>
-      <div className="max-w-3xl rounded-xl bg-surface p-8 shadow-card">
+      <div className="max-w-3xl rounded-2xl border border-surface-border bg-surface p-6 shadow-card md:p-8">
         <TutorAvailabilityForm initialSlots={data ?? []} />
       </div>
     </div>

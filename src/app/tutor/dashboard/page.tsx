@@ -1,6 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
+import { SimpleBarChart, SimpleLineChart } from '@/components/charts/DashboardCharts';
+import { getTutorAnalytics } from '@/lib/api/stats';
 import { useToast } from '@/lib/hooks/useToast';
 import {
   useCompleteSession,
@@ -15,6 +18,11 @@ import PageLoader from '@/components/ui/PageLoader';
 
 export default function TutorDashboardPage() {
   const { data, isLoading, error, refetch } = useTutorSessions();
+  const { data: analytics } = useQuery({
+    queryKey: ['analytics', 'tutor'],
+    queryFn: getTutorAnalytics,
+    staleTime: 60_000,
+  });
   const completeMutation = useCompleteSession();
   const confirmMutation = useConfirmSession();
   const declineMutation = useDeclineSession();
@@ -105,6 +113,23 @@ export default function TutorDashboardPage() {
           accent="brand"
         />
       </div>
+
+      {analytics && (
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <SimpleBarChart
+            title="Sessions by month"
+            data={analytics.byMonth.map((m) => ({ month: m.month, sessions: m.sessions }))}
+            xKey="month"
+            yKey="sessions"
+          />
+          <SimpleLineChart
+            title="Earnings by month"
+            data={analytics.byMonth.map((m) => ({ month: m.month, earnings: m.earnings }))}
+            xKey="month"
+            yKey="earnings"
+          />
+        </div>
+      )}
 
       {pending.length > 0 && (
         <section className="mb-6 rounded-xl bg-surface p-6 shadow-card">

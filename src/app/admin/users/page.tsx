@@ -47,9 +47,12 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-3xl font-bold">Users</h1>
+      <h1 className="mb-2 font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+        Users
+      </h1>
+      <p className="mb-6 text-sm text-ink-muted">Search, filter, and manage account access.</p>
 
-      <div className="mb-6 grid grid-cols-1 gap-3 rounded-xl bg-surface p-5 shadow-card md:grid-cols-3">
+      <div className="mb-6 grid grid-cols-1 gap-3 rounded-2xl border border-surface-border bg-surface p-4 shadow-card md:grid-cols-3 md:p-5">
         <input
           type="search"
           placeholder="Search by name or email"
@@ -58,7 +61,7 @@ export default function AdminUsersPage() {
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+          className="rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
         />
         <select
           value={role}
@@ -66,7 +69,7 @@ export default function AdminUsersPage() {
             setRole(e.target.value as UserRole | '');
             setPage(1);
           }}
-          className="rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink"
+          className="rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink"
         >
           <option value="">All roles</option>
           <option value="STUDENT">Student</option>
@@ -79,7 +82,7 @@ export default function AdminUsersPage() {
             setBannedFilter(e.target.value as typeof bannedFilter);
             setPage(1);
           }}
-          className="rounded-lg border border-surface-border bg-surface px-3 py-2 text-sm text-ink"
+          className="rounded-xl border border-surface-border bg-surface px-3 py-2.5 text-sm text-ink"
         >
           <option value="">All statuses</option>
           <option value="false">Active</option>
@@ -87,7 +90,7 @@ export default function AdminUsersPage() {
         </select>
       </div>
 
-      <div className="overflow-hidden rounded-xl bg-surface shadow-card">
+      <div className="overflow-hidden rounded-2xl border border-surface-border bg-surface shadow-card">
         {isLoading ? (
           <PageLoader label="Loading users…" />
         ) : error ? (
